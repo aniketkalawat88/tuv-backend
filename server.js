@@ -15,6 +15,12 @@ app.use(cors());
 // Routes
 app.use("/api/blogs", blogRoutes);
 
+app.use("*", (req,res)=> {
+  return res.status(404).json({
+    message:"Page Not Found"
+  })
+})
+
 // Connect to MongoDB
 mongoose
   .connect(process.env.MONGO_URI)
