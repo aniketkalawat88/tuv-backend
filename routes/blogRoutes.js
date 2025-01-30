@@ -84,6 +84,14 @@ router.put("/:id", upload.single("image"), async (req, res) => {
 // DELETE - Remove a blog by ID
 router.delete("/:id", async (req, res) => {
   try {
+    const blog = await Blog.findById(req.params.id);
+    if (!blog) return res.status(404).json({ message: "Blog not found" });
+    
+    // Delete image from Cloudinary
+    const publicId = blog.image.split("/").pop().split(".")[0];
+    await cloudinary.uploader.destroy(`blog-images/${publicId}`);
+    
+    // Delete blog
     const deletedBlog = await Blog.findByIdAndDelete(req.params.id);
 
     if (!deletedBlog) return res.status(404).json({ message: "Blog not found" });
@@ -93,5 +101,19 @@ router.delete("/:id", async (req, res) => {
     res.status(500).json({ message: "Error deleting blog", error });
   }
 });
+
+router.get("/:id", async (req, res) => {
+  try {
+    const blog = await Blog.findById(req.params.id);
+    if (!blog) return res.status(404).json({ message: "Blog not found" });
+
+    res.status(200).json(blog);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching blog", error });
+  }
+});
+
+module.exports = router;
+
 
 module.exports = router;
